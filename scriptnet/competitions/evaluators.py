@@ -77,8 +77,9 @@ def random_numbers(*args, **kwargs):
 
 
 def icfhr14_kws_tool(*args, **kwargs):
-    executable_folder = '{}/competitions/executables/VCGEvalConsole.linux'.
-    format(settings.BASE_DIR)
+    executable_folder = \
+        '{}/competitions/executables/VCGEvalConsole.linux'\
+        .format(settings.BASE_DIR)
     resultdata = kwargs.pop('resultdata',
                             '{}/WordSpottingResultsSample.xml'
                             .format(executable_folder))
@@ -124,9 +125,9 @@ def icfhr14_kws_tool(*args, **kwargs):
 
 
 def transkribusBaseLineMetricTool(*args, **kwargs):
-    executable_folder =
-    '{}/competitions/executables/TranskribusBaseLineMetricTool'
-    .format(settings.BASE_DIR)
+    executable_folder =\
+        '{}/competitions/executables/TranskribusBaseLineMetricTool'\
+        .format(settings.BASE_DIR)
     # resultdata = kwargs.pop('resultdata', 'reco.lst')
     resultdata = kwargs.pop('resultdata', executable_folder)
     # privatedata = kwargs.pop('privatedata', 'truth.lst')
@@ -166,8 +167,8 @@ def transkribusBaseLineMetricTool(*args, **kwargs):
 
     rmtree(newfolder)
     print(command_output)
-    rgx = r'Avg \(over Pages\) Avg Precision: ([\d\.]+)\nAvg \(over Pages\) ' +
-    'Avg Recall: ([\d\.]+)\nAvg \(over Pages\) Avg F-Measure: ([\d\.]+)'
+    rgx = r'Avg \(over Pages\) Avg Precision: ([\d\.]+)\nAvg \(over Pages\) '\
+        'Avg Recall: ([\d\.]+)\nAvg \(over Pages\) Avg F-Measure: ([\d\.]+)'
     r = re.search(rgx, command_output)
     result = {
         'bl-avg-precision': r.group(1),
@@ -252,8 +253,8 @@ def transkribusErrorRate(*args, **kwargs):
     for folder in to_remove_folder:
         print("remove '"+folder+"'")
         rmtree(folder)
-    rgx = r'.*SUB = ([\d\.]+).*\nDEL = ([\d\.]+).*\nINS ' +
-    '= ([\d\.]+).*\nERR = ([\d\.]+).*'
+    rgx = r'.*SUB = ([\d\.]+).*\nDEL = ([\d\.]+).*\nINS '\
+        '= ([\d\.]+).*\nERR = ([\d\.]+).*'
     r = re.search(rgx, command_output)
     result = {
         'ERR': r.group(4).encode("utf-8"),
@@ -266,8 +267,8 @@ def transkribusErrorRate(*args, **kwargs):
 
 def icfhr16_HTR_tool(*args, **kwargs):
     print("icfhr16_HTR_tool")
-    executable_folder = '{}/competitions/executables/' +
-    'EvaluationCERandWER'.format(settings.BASE_DIR)
+    executable_folder = '{}/competitions/executables/'\
+        'EvaluationCERandWER'.format(settings.BASE_DIR)
     resultdata = kwargs.pop('resultdata', executable_folder)
     privatedata = kwargs.pop('privatedata',
                              '{}/gt.zip'.format(executable_folder))
@@ -294,8 +295,9 @@ def icfhr16_HTR_tool(*args, **kwargs):
 def icdar2017_writer_identification(*args, **kwargs):
     print("ICDAR 2017 Writer Identification")
     print(str(kwargs))
-    executable_folder = '{}/competitions/executables' +
-    '/ICDAR2017WriterIdentification'.format(settings.BASE_DIR)
+    executable_folder = \
+        '{}/competitions/executables/ICDAR2017WriterIdentification'\
+        .format(settings.BASE_DIR)
     resultdata = kwargs.pop('resultdata', executable_folder)
     privatedata = kwargs.pop('privatedata',
                              '{}/gtfile.txt'.format(executable_folder))
