@@ -1,6 +1,6 @@
 # This file contains all functions available to compute numerical results
 # for user uploaded method results.
-# Except: evaluator_worker . This is used as the thread that wraps calls 
+# Except: evaluator_worker . This is used as the thread that wraps calls
 # to evaluator_function in views.py .
 
 from django.conf import settings
@@ -18,8 +18,8 @@ import tarfile
 temporary_folder = '/tmp/'
 
 def cmdline(command, *args, **kwargs):
-    # http://stackoverflow.com/questions/3503879/assign-output-of-os-system-to-a-variable-and-prevent-it-from-being-displayed-on    
-    # http://stackoverflow.com/questions/17615414/how-to-convert-binary-string-to-normal-string-in-python3 
+    # http://stackoverflow.com/questions/3503879/assign-output-of-os-system-to-a-variable-and-prevent-it-from-being-displayed-on
+    # http://stackoverflow.com/questions/17615414/how-to-convert-binary-string-to-normal-string-in-python3
     # http://stackoverflow.com/questions/13744473/command-line-execution-in-different-folder
     cwd = kwargs.pop('cwd', None)
     process = Popen(
@@ -45,7 +45,7 @@ def evaluator_worker(evaluator_function, submission_status_set):
                 s.status = "PROCESSING"
                 s.save()
             result_dictionary = evaluator_function(
-                privatedata = submission.subtrack.private_data_unpacked_folder(), 
+                privatedata = submission.subtrack.private_data_unpacked_folder(),
                 resultdata = submission.resultfile.name,
                 )
             for s in submission_status_set:
@@ -73,7 +73,7 @@ def random_numbers(*args, **kwargs):
     return result
 
 def icfhr14_kws_tool(*args, **kwargs):
-    executable_folder = '{}/competitions/executables/VCGEvalConsole.linux'.format(settings.BASE_DIR)    
+    executable_folder = '{}/competitions/executables/VCGEvalConsole.linux'.format(settings.BASE_DIR)
     resultdata = kwargs.pop('resultdata', '{}/WordSpottingResultsSample.xml'.format(executable_folder))
     privatedata = kwargs.pop('privatedata', '{}/GroundTruthRelevanceJudgementsSample.xml'.format(executable_folder))
     n_xml = 0
@@ -94,7 +94,7 @@ def icfhr14_kws_tool(*args, **kwargs):
     command_output = cmdline(commandline)
 
     rgx = r'ALL QUERIES\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)'
-    r = re.search(rgx, command_output) 
+    r = re.search(rgx, command_output)
     result = {
         'p@5':              r.group(1),
         'p@10':             r.group(2),
@@ -107,7 +107,7 @@ def icfhr14_kws_tool(*args, **kwargs):
     return result
 
 def transkribusBaseLineMetricTool(*args, **kwargs):
-    executable_folder = '{}/competitions/executables/TranskribusBaseLineMetricTool'.format(settings.BASE_DIR)    
+    executable_folder = '{}/competitions/executables/TranskribusBaseLineMetricTool'.format(settings.BASE_DIR)
     #resultdata = kwargs.pop('resultdata', 'reco.lst')
     resultdata = kwargs.pop('resultdata', executable_folder)
     #privatedata = kwargs.pop('privatedata', 'truth.lst')
@@ -127,7 +127,7 @@ def transkribusBaseLineMetricTool(*args, **kwargs):
                 target_filename = join(newfolder, filename)
                 copyfile(full_filename, target_filename)
         else:
-            #If it is a file, it must be a tarball, or else raise an error 
+            #If it is a file, it must be a tarball, or else raise an error
             tar = tarfile.open(resultdata)
             tar.extractall(newfolder)
             tar.close()
@@ -139,7 +139,7 @@ def transkribusBaseLineMetricTool(*args, **kwargs):
         executable_folder = newfolder
         resultdata = '{}reco.lst'.format(newfolder)
         privatedata = '{}truth.lst'.format(newfolder)
-   
+
     executable = 'java -jar {}'.format(executable_jar)
     commandline = '{} {} {}'.format(executable, privatedata, resultdata)
     command_output = cmdline(commandline, cwd=executable_folder)
@@ -147,7 +147,7 @@ def transkribusBaseLineMetricTool(*args, **kwargs):
     rmtree(newfolder)
     print(command_output)
     rgx = r'Avg \(over Pages\) Avg Precision: ([\d\.]+)\nAvg \(over Pages\) Avg Recall: ([\d\.]+)\nAvg \(over Pages\) Avg F-Measure: ([\d\.]+)'
-    r = re.search(rgx, command_output)     
+    r = re.search(rgx, command_output)
     result = {
         'bl-avg-precision': r.group(1),
         'bl-avg-recall':    r.group(2),
@@ -257,3 +257,29 @@ def icfhr16_HTR_tool(*args, **kwargs):
     }
     print(result)
     return result
+
+def icdar2017_writer_identification(*args, **kwargs):
+	print("ICDAR 2017 Writer Identification")
+	print(str(kwargs))
+	executable_folder = '{}/competitions/executables/ICDAR2017WriterIdentification'.format(settings.BASE_DIR)
+	resultdata = kwargs.pop('resultdata', executable_folder)
+	privatedata = kwargs.pop('privatedata', '{}/gtfile.txt'.format(executable_folder))
+
+	print(resultdata)
+	print(privatedata)
+
+
+	executable = '{}/evaluation.py'.format(executable_folder)
+	commandline = '{} {} {}'.format(executable, privatedata + '/gtfile.csv', resultdata)
+	print(commandline)
+
+	command_output = cmdline(commandline)
+
+	rgx = r'([\d\.]+)\n+([\d\.]+)'
+	r = re.search(rgx, command_output)
+	result = {
+	'precision':             r.group(1),
+	'map':             r.group(2),
+	}
+	print(result)
+	return result
