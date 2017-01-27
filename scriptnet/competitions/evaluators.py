@@ -77,8 +77,7 @@ def random_numbers(*args, **kwargs):
 
 
 def icfhr14_kws_tool(*args, **kwargs):
-    executable_folder =
-    '{}/competitions/executables/VCGEvalConsole.linux'.
+    executable_folder = '{}/competitions/executables/VCGEvalConsole.linux'.
     format(settings.BASE_DIR)
     resultdata = kwargs.pop('resultdata',
                             '{}/WordSpottingResultsSample.xml'
