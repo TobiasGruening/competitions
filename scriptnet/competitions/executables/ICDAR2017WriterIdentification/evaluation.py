@@ -19,7 +19,7 @@ __status__ = "Production"
 OUTPUT_NAME = "Historical-WI Evaluation"
 
 logging.basicConfig(level=logging.INFO, format=OUTPUT_NAME +
-                    ': %(levelname)s %(message)s')
+                    ' %(levelname)s %(message)s')
 
 logger = logging.getLogger()
 
@@ -61,9 +61,10 @@ def evaluate(writer, resultfile):
         imgs = line.split(',')
 
         ref_page = imgs.pop(0)
-        if 'ref_page' not in writer:
-                logger.error('filename unkown')
-                exit(-4)
+
+        if ref_page not in writer:
+            logger.error('filename \"' + ref_page + '\" unkown')
+            exit(-4)
 
         ref_writer = writer[ref_page]
         logger.debug("ref_writer:" + ref_writer + " ref_page:" + ref_page)
