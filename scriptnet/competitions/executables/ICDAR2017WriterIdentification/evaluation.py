@@ -80,13 +80,15 @@ def evaluate(writer, resultfile):
                 cur_sum = cur_sum + (float)(i_true)/i_count
 
         page_count = page_count + 1
-        average_precision.append((float)(cur_sum)/i_true)
+        if i_true != 0:
+            average_precision.append((float)(cur_sum)/i_true)
+        else:
+            average_precision.append(0)
 
     file.close()
     logger.debug("top1_count:" + str(top1_count))
     logger.debug("page_count:" + str(page_count))
     precision = (float)(top1_count)/page_count
-    print("len avg:" + str(average_precision))
     meanap = float(sum(average_precision))/float(len(average_precision))
     return precision, meanap
 
