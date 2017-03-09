@@ -70,10 +70,10 @@
                     <li>
                         <a class="page-scroll dontunderline" href="#services">{% trans "Competitions" %}</a>
                     </li>
+                    {% if not user.is_authenticated %}
                     <li>
                         <a class="page-scroll dontunderline" href="#register">{% trans "Register" %}</a>
-                    </li>
-                    {% if not user.is_authenticated %}
+                    </li>                    
                     <li>
                         <a class="page-scroll dontunderline" href="#login">{% trans "Login" %}</a>
                     </li>
@@ -168,39 +168,25 @@
         </div>
 
         <div class="container-fluid text-center">
-            <div class="row no-gutter">
+            <div class="row">
 				{% if competitions %}
-                <ul class="list-group">                
-				{% for c in competitions %}
-                <li class="list-group-item">
-    			<div class="row">
-    				<div class="col-lg-3"></div>
-    				<div class="col-lg-3">
-                        {% if c.avatar %}
-                        <img src="{{ c.avatar.url }}" class="img-responsive center-block" alt="">
-                        {% else %}
-                        <img src="{% static 'img/nicesamples/1.jpg' %}" class="img-responsive center-block" alt="">
-                        {% endif %}                                                          
-	    			</div>
-                    <div class="col-lg-1">
-                        <a href="{% url 'competition' competition_id=c.id %}">                    
-                    			{{ c.name }}
-                        </a>                            
-    				</div>
-    				<div class="col-lg-5"></div>                
-    			</div>
-                <br>                
-                </li>
-				{% endfor %}
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <div class="row">  
+				    {% for c in competitions %}
+                        {% include "competitions/master_competitions.html" %}
+				    {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-3"></div>                
 				{% else %}
 				<p> {% trans "*No competitions are currently active*" %}
 				{% endif %}
-                </ul>
             </div>
-		</div>
-
+        </div>
     </section>
 
+    {% if not user.is_authenticated %}
     <section class="bg-primary" id="register">
         <div class="container">
             <div class="row">
@@ -230,6 +216,7 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
     {% if not user.is_authenticated %}
     <section id="login">
@@ -238,6 +225,13 @@
 		        <div class="col-lg-8">
                     <h2 class="section-heading">{% trans "Login" %}</h2>
                     <p>{% trans "Login with your credentials if you have already registered." %}</p>
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}                    
                     <!-- Το ονομα του action αναφερεται στους regexp ορισμους των urls.py -->
 		            <form action="" method="post" role="form">
 		                {% csrf_token %}
@@ -280,6 +274,7 @@
 			</div>
             
             <br><br><br>
+            <br><br><br><br><br><br><br><br>
 			<div class="row text-center">
 				<div class="col-lg-2"></div>
 				<div class="col-lg-9">                                
@@ -287,12 +282,20 @@
                         {% trans "© 2016 READ Project." %}                        
                         {% trans "This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 674943." %}                                                
                     </small>
-                    </div>                    
-		<div class="col-lg-1"></div>                    
-		</div>
+                </div>                    
+		        <div class="col-lg-1"></div>
+		    </div>
+            <br><br>
+            <div class="row text-center">
+                    <img src="{% static 'img/logos/logo_ec.png' %}" width="20%" class="img-responsive center-block" alt="">
+            </div>
  		<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
         </div>
     </section>
+				<div class="col-lg-8"></div>                
+                <div class="col-lg-3">                                
+                </div>
+                <div class="col-lg-1"></div>                
 
     <!-- jQuery -->
     <script src="{% static 'js/jquery.js' %}"></script>

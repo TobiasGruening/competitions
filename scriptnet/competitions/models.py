@@ -39,12 +39,10 @@ class Affiliation(models.Model):
 
 #The custom user class
 class Individual(models.Model):
-    #TODO: The user/individual will have to be authenticated by email eventually
-	#TODO: This means that he _will_ be created, but a bool field here will check if he has been email-authenticated or not	
-	user = models.OneToOneField(User, on_delete=models.CASCADE)	
-	shortbio = models.TextField(editable=True, default="")
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	activation_token = models.UUIDField(primary_key=False, default=uuid4, editable=False)
+	shortbio = models.TextField(editable=True, default="", blank=True)
 	affiliations = models.ManyToManyField(Affiliation)
-	#TODO: Use a unique identifier like in submission_path	
 	avatar = models.FileField(upload_to='uploads/avatars/', null=True, blank=True)
 	def __str__(self):
 		return '({}) {}'.format(self.id, self.user.username)
@@ -71,12 +69,20 @@ post_save.connect(create_user_profile, sender=User)
 
 class Competition(models.Model):
 	organizer = models.ManyToManyField(Individual)
+	#The following control the individual's position on the organizer list
+	# Leading_organizers show up higher than midtier_organizers and other organizers.
+	# Midtier_orginazers show up higher than other (non-leading) organizers.
+	leading_organizer = models.ManyToManyField(Individual, related_name='leading_organizer', blank=True)
+	midtier_organizer = models.ManyToManyField(Individual, related_name='midtier_organizer', blank=True)
+	#
 	name = models.CharField(max_length = 100)
+	url_alias = models.SlugField(max_length = 30, editable=True, default="") #This is used for the URL shortcut (see urls.py, issue #72)
 	avatar = models.FileField(upload_to='uploads/avatars/', null=True, blank=True)
 	overview = models.TextField(editable=True, default="")
 	newsfeed = models.TextField(editable=True, default="")
 	important_dates = models.TextField(editable=True, default="")
 	is_public = models.BooleanField(default=True)
+	submission_is_open = models.BooleanField(default=True)
 	def __str__(self):
 		return '({}) {}'.format(self.id, self.name)
 

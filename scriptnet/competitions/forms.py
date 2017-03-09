@@ -10,7 +10,7 @@ class RegisterForm(forms.Form):
     #TODO: This code runs only once, when the server starts. Need to rerun when possible_affiliations changes
     # Do sth like submitform ?
     possible_affiliations = []
-    for af in Affiliation.objects.all():
+    for af in Affiliation.objects.order_by('name'):
         possible_affiliations.append((af.id, af.name))
     possible_affiliations.append((NEW_AFFILIATION_ID, 'Other'))
 
@@ -18,7 +18,7 @@ class RegisterForm(forms.Form):
     last_name = forms.CharField(label=_('Family name'), max_length=100)
     email = forms.EmailField(label=_('Email'), max_length=100)
     shortbio = forms.CharField(required=False, widget=forms.Textarea, label=_('Short biography (optional)'))
-	#avatar = forms.FileField(upload_to='uploads/avatars/', null=True, blank=True)
+    avatar = forms.FileField(label=_('Upload picture (optional)'), required=False)
     affiliations = forms.ChoiceField(
         required=False,
         widget=forms.Select,
