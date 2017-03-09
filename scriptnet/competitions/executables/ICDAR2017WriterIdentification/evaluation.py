@@ -19,7 +19,7 @@ __status__ = "Production"
 OUTPUT_NAME = "Historical-WI Evaluation"
 
 logging.basicConfig(level=logging.INFO, format=OUTPUT_NAME +
-                    ' %(levelname)s %(message)s')
+                    ': %(levelname)s %(message)s')
 
 logger = logging.getLogger()
 
@@ -61,6 +61,10 @@ def evaluate(writer, resultfile):
         imgs = line.split(',')
 
         ref_page = imgs.pop(0)
+        if 'ref_page' not in writer:
+                logger.error('filename unkown')
+                exit(-4)
+
         ref_writer = writer[ref_page]
         logger.debug("ref_writer:" + ref_writer + " ref_page:" + ref_page)
         if ref_writer == writer[imgs[0]]:
@@ -89,7 +93,7 @@ if __name__ == "__main__":
     import argparse
     import os.path
 
-    logger.setLevel(logging.CRITICAL)
+    logger.setLevel(logging.ERROR)
     logger.debug("starting")
     parser = argparse.ArgumentParser(
         description='evaluation the result files submitted via ScriptNet ' +
