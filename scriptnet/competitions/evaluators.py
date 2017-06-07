@@ -4,6 +4,7 @@
 # to evaluator_function in views.py .
 
 from django.conf import settings
+from django.core.mail import send_mail, EmailMessage
 from random import random
 from time import sleep
 from os import listdir, makedirs, remove
@@ -32,12 +33,48 @@ def cmdline(command, *args, **kwargs):
     res = process.communicate()[0]
     return res.decode('utf-8')
 
+def send_feedback(status, logfile, individu):
+    uname = individu.user.username
+    #TODO: Maybe all cosubmitters should be notified
+    #TODO: Maybe add more info about the submission
+    uemail = individu.user.email
+    if status == "COMPLETE":
+        status_final = 'Evaluation finished succesfully.'
+    elif status == "ERROR_EVALUATOR":
+        status_final = 'Evaluation internal error; evaluator not found.'
+    elif status == "ERROR_UNSUPPORTED":
+        status_final = 'Evaluation internal error; benchmark unsupported.'        
+    elif status == "ERROR_PROCESSING":
+        status_final = 'Evaluation error; an error occured while processing your file.'
+    else:
+        status_final = 'Unknown error.'
+    email = EmailMessage(
+        'Submission to Scriptnet',
+        """
+This email is sent as feedback because you have submitted a result file to the ScriptNet Competitions Site.
+Username: {}
+{} (return code: {})
 
-def evaluator_worker(evaluator_function, submission_status_set):
+Evaluator log (if any:)
+{}
+
+ScriptNet is hosted by the National Centre of Scientific Research Demokritos and co-financed by the H2020 Project READ (Recognition and Enrichment of Archival Documents):
+http://read.transkribus.eu/
+        """.format(uname, status_final, status, logfile),
+        settings.EMAIL_HOST_USER,
+        [uemail],
+        ['sfikas@iit.demokritos.gr'],
+    )
+    email.send(fail_silently=False)
+
+
+def evaluator_worker(evaluator_function, submission_status_set, individu):
+    logfile = ''
     if not evaluator_function:
         for s in submission_status_set:
             s.status = "ERROR_EVALUATOR"
             s.save()
+        send_feedback(s.status, logfile, individu)
         return
     else:
         try:
@@ -46,10 +83,14 @@ def evaluator_worker(evaluator_function, submission_status_set):
                 submission = s.submission
                 s.status = "PROCESSING"
                 s.save()
-            result_dictionary = evaluator_function(
+            res = evaluator_function(
                 privatedata=submission.subtrack.private_data_unpacked_folder(),
                 resultdata=submission.resultfile.name,
                 )
+            if(isinstance(res, dict)):
+                result_dictionary = res
+            else:
+                (result_dictionary, logfile) = res
             for s in submission_status_set:
                 benchname = s.benchmark.name
                 if benchname in result_dictionary.keys():
@@ -60,10 +101,12 @@ def evaluator_worker(evaluator_function, submission_status_set):
                     s.status = "ERROR_UNSUPPORTED"
                     s.numericalresult = ''
                     s.save()
+            send_feedback(s.status, logfile, individu)
         except:
             for s in submission_status_set:
                 s.status = "ERROR_PROCESSING"
                 s.save()
+            send_feedback(s.status, logfile, individu)
             return
 
 
@@ -121,7 +164,7 @@ def icfhr14_kws_tool(*args, **kwargs):
                                    r.group(13), r.group(14), r.group(15),
                                    r.group(16), r.group(17)])
     }
-    return result
+    return (result, command_output)
 
 
 def transkribusBaseLineMetricTool(*args, **kwargs):
@@ -185,7 +228,7 @@ def transkribusBaseLineMetricTool(*args, **kwargs):
         'bl-avg-R-value':    r.group(2),
         'bl-F_1-value':  r.group(3),
     }
-    return result
+    return (result, command_output)
 
 
 def transkribusErrorRate(*args, **kwargs):
