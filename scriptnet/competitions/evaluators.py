@@ -190,7 +190,7 @@ def transkribusBaseLineMetricTool(*args, **kwargs):
         truthfolder = join(newfolder, 'truth')
         makedirs(truthfolder)
         if(isdir(resultdata)):
-            cmdline('cp -r '+resultdata+' '+hypofolde)
+            cmdline('cp -r '+resultdata+' '+hypofolder)
         else:
             # If it is a file, it must be a tarball, or else raise an error
             tar = tarfile.open(resultdata)
